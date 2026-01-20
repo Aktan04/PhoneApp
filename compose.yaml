@@ -1,0 +1,6 @@
+﻿services:
+  phoneapp.webapi:
+    image: phoneapp.webapi
+    build:
+      context: .
+      dockerfile: PhoneApp.WebApi/Dockerfile
