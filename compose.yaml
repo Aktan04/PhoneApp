@@ -4,3 +4,15 @@
     build:
       context: .
       dockerfile: PhoneApp.WebApi/Dockerfile
+
+  phoneapp.blazorapp:
+    image: phoneapp.blazorapp
+    build:
+      context: .
+      dockerfile: PhoneApp.BlazorApp/PhoneApp.BlazorApp/Dockerfile
+
+  phoneapp.blazorapp.client:
+    image: phoneapp.blazorapp.client
+    build:
+      context: .
+      dockerfile: PhoneApp.BlazorApp/PhoneApp.BlazorApp.Client/Dockerfile
