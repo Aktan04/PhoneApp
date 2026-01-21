@@ -1,12 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+namespace PhoneApp.Application.DTOs.User;
 
-namespace PhoneApp.Application.DTOs.Auth;
-
-public class RegisterDto
+public class CreateUserDto
 {
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public string ConfirmPassword { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }
 }

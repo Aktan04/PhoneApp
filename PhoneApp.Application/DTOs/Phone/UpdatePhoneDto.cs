@@ -1,7 +1,6 @@
 namespace PhoneApp.Application.DTOs.Phone;
 
-public class PhoneDto
+public class UpdatePhoneDto
 {
-    public int Id { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
 }

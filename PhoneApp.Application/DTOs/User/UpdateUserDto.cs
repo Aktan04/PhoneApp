@@ -1,11 +1,8 @@
-using PhoneApp.Application.DTOs.Phone;
-
 namespace PhoneApp.Application.DTOs.User;
-public class UserDto
+
+public class UpdateUserDto
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }
-    public List<PhoneDto> Phones { get; set; } = new();
 }
