@@ -4,12 +4,12 @@ namespace PhoneApp.Domain.Interfaces;
 
 public interface IUserRepository
 {
-    Task<User?> GetByIdAsync(int id, bool includePhones = false);
+    Task<User?> GetByIdAsync(int id);
     Task<User?> GetByEmailAsync(string email);
-    Task<IEnumerable<User>> GetAllAsync(bool includePhones = false);
-    Task<User> CreateAsync(User user);
-    Task<User> UpdateAsync(User user);
-    Task DeleteAsync(int id);
+    Task<IEnumerable<User>> GetAllAsync();
     Task<bool> ExistsByEmailAsync(string email, int? excludeUserId = null);
+    Task CreateAsync(User user);
+    Task UpdateAsync(User user);
+    Task DeleteAsync(User user);
     Task<int> SaveChangesAsync();
 }
