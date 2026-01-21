@@ -1,0 +1,72 @@
+@page "/register"
+@using MudBlazor
+@using PhoneApp.BlazorApp.Models
+@using PhoneApp.BlazorApp.Services
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-12">
+    <MudPaper Elevation="4" Class="pa-6">
+
+        <MudText Typo="Typo.h5" GutterBottom="true">
+            Register
+        </MudText>
+
+        <MudTextField Label="Name"
+                      @bind-Value="model.Name"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Class="mb-3" />
+
+        <MudTextField Label="Email"
+                      @bind-Value="model.Email"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Class="mb-3" />
+
+        <MudTextField Label="Password"
+                      @bind-Value="model.Password"
+                      InputType="InputType.Password"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Class="mb-3" />
+
+        <MudDatePicker Label="Date of birth"
+                       @bind-Date="birthDate"
+                       Variant="Variant.Outlined"
+                       Class="mb-4" />
+
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   FullWidth="true"
+                   OnClick="RegisterAsync">
+            Create account
+        </MudButton>
+
+        <MudDivider Class="my-4" />
+
+        <MudText Typo="Typo.body2">
+            Already have an account?
+            <MudLink Href="/login">Login</MudLink>
+        </MudText>
+
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private RegisterRequest model = new();
+    private DateTime? birthDate = DateTime.UtcNow.AddYears(-18);
+    private string error = "";
+    
+    private async Task RegisterAsync()
+    {
+        if (birthDate == null)
+        {
+            error = "Дата рождения обязательна";
+            return;
+        }
+        model.DateOfBirth = DateOnly.FromDateTime(birthDate.Value);
+        await AuthService.RegisterAsync(model);
+        Nav.NavigateTo("/", forceLoad: true);
+    }
+}

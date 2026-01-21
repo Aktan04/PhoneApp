@@ -1,0 +1,51 @@
+@page "/me"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using PhoneApp.BlazorApp.Services
+@using PhoneApp.BlazorApp.Models
+@using PhoneApp.BlazorApp.Shared
+@inject UsersService UsersService
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+
+    <MudText Typo="Typo.h4" GutterBottom="true">
+        My profile
+    </MudText>
+
+    @if (me == null)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+    else
+    {
+        <MudPaper Elevation="2" Class="pa-5 mb-6">
+            <EditUserForm User="me" OnSaved="Reload" />
+        </MudPaper>
+
+        <MudPaper Elevation="1" Class="pa-5">
+            <UserPhones />
+        </MudPaper>
+    }
+
+</MudContainer>
+
+@code {
+    private UserDto? me;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Reload();
+    }
+
+    private async Task Reload()
+    {
+        me = await UsersService.GetMeAsync();
+        
+        if (me == null)
+        {
+            Nav.NavigateTo("/login", true);
+        }
+    }
+}

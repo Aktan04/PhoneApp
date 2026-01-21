@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject PhoneApp.BlazorApp.Services.AuthService AuthService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<MudNavMenu Dense="true"  @key="_authKey">
+
+    <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home">
+        Home
+    </MudNavLink>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudNavLink Href="/users"
+                        Icon="@Icons.Material.Filled.AdminPanelSettings">
+                Users
+            </MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+    <AuthorizeView>
+        <Authorized>
+            <MudNavLink Href="/me" Icon="@Icons.Material.Filled.Person">
+                My profile
+            </MudNavLink>
+
+            <MudDivider Class="my-2" />
+
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Error"
+                       StartIcon="@Icons.Material.Filled.Logout"
+                       OnClick="Logout">
+                Logout
+            </MudButton>
+        </Authorized>
+
+        <NotAuthorized>
+            <MudNavLink Href="/login" Icon="@Icons.Material.Filled.Login">
+                Login
+            </MudNavLink>
+
+            <MudNavLink Href="/register" Icon="@Icons.Material.Filled.AppRegistration">
+                Register
+            </MudNavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+
+</MudNavMenu>
+
+@code {
+    private Guid _authKey = Guid.NewGuid();
+    
+    protected override void OnInitialized()
+    {
+        AuthStateProvider.AuthenticationStateChanged += _ =>
+        {
+            _authKey = Guid.NewGuid(); 
+            InvokeAsync(StateHasChanged);
+        };
+    }
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/login", forceLoad: true);
+    }
+}

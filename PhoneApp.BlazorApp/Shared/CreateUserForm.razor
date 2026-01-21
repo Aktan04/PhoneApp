@@ -1,0 +1,84 @@
+@using MudBlazor
+@using PhoneApp.BlazorApp.Models
+@using PhoneApp.BlazorApp.Services
+@inject UsersService UsersService
+
+<MudPaper Elevation="2" Class="pa-4">
+
+    <MudText Typo="Typo.h6" GutterBottom="true">
+        Create user
+    </MudText>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-3">
+            @error
+        </MudAlert>
+    }
+
+    <MudTextField Label="Name"
+                  @bind-Value="model.Name"
+                  Variant="Variant.Outlined"
+                  FullWidth="true"
+                  Class="mb-3" />
+
+    <MudTextField Label="Email"
+                  @bind-Value="model.Email"
+                  Variant="Variant.Outlined"
+                  FullWidth="true"
+                  Class="mb-3" />
+
+    <MudDatePicker Label="Date of birth"
+                   @bind-Date="birthDate"
+                   Variant="Variant.Outlined"
+                   Class="mb-4" />
+
+    <MudButton Color="Color.Primary"
+               Variant="Variant.Filled"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="Create">
+        Create
+    </MudButton>
+
+</MudPaper>
+
+@code {
+    [Parameter] public EventCallback OnCreated { get; set; }
+
+    private UserCreateRequest model = new();
+    private DateTime? birthDate = DateTime.UtcNow.AddYears(-18);
+    private string error = "";
+
+    private async Task Create()
+    {
+        if (string.IsNullOrWhiteSpace(model.Name) ||
+            string.IsNullOrWhiteSpace(model.Email))
+        {
+            error = "Name and Email are required";
+            return;
+        }
+
+        if (birthDate == null)
+        {
+            error = "Date of birth is required";
+            return;
+        }
+
+        try
+        {
+            error = "";
+            model.DateOfBirth = DateOnly.FromDateTime(birthDate.Value);
+
+            await UsersService.CreateAsync(model);
+
+            model = new UserCreateRequest();
+            birthDate = DateTime.UtcNow.AddYears(-18);
+
+            await OnCreated.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

@@ -1,0 +1,105 @@
+@page "/users"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using PhoneApp.BlazorApp.Services
+
+@using PhoneApp.BlazorApp.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using PhoneApp.BlazorApp.Shared
+@inject UsersService UsersService
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+
+        <MudContainer MaxWidth="MaxWidth.False">
+
+            <MudText Typo="Typo.h4" GutterBottom="true">
+                Users
+            </MudText>
+
+            <MudPaper Elevation="2" Class="pa-4 mb-6">
+                <CreateUserForm OnCreated="LoadUsers" />
+            </MudPaper>
+
+            <MudTable Items="users"
+                      Dense="true"
+                      Hover="true"
+                      Striped="true"
+                      Bordered="true">
+
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Date of birth</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+
+                <RowTemplate Context="user">
+                    <MudTd>@user.Id</MudTd>
+                    <MudTd>@user.Name</MudTd>
+                    <MudTd>@user.Email</MudTd>
+                    <MudTd>@user.DateOfBirth</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       OnClick="() => StartEdit(user)" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       OnClick="() => Delete(user.Id)" />
+                    </MudTd>
+                </RowTemplate>
+
+            </MudTable>
+
+            @if (editingUser != null)
+            {
+                <MudPaper Elevation="3" Class="pa-5 mt-6">
+                    <EditUserForm User="editingUser"
+                                  OnSaved="OnUserSaved"
+                                  OnCanceled="CancelEdit" />
+                </MudPaper>
+            }
+
+        </MudContainer>
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private List<UserDto>? users;
+    private UserDto? editingUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await UsersService.GetAllAsync();
+    }
+
+    private async Task Delete(int id)
+    {
+        await UsersService.DeleteAsync(id);
+        await LoadUsers();
+    }
+
+    private void StartEdit(UserDto user)
+    {
+        editingUser = user;
+    }
+
+    private async Task OnUserSaved()
+    {
+        editingUser = null;
+        await LoadUsers();
+    }
+
+    private void CancelEdit()
+    {
+        editingUser = null;
+    }
+}

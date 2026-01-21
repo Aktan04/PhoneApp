@@ -7,9 +7,11 @@ public static class ClaimsPrincipalExtensions
 {
     public static int GetUserId(this ClaimsPrincipal user)
     {
-        var id = user.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        var id =
+            user.FindFirstValue(ClaimTypes.NameIdentifier) ??
+            user.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-        if (string.IsNullOrEmpty(id))
+        if (string.IsNullOrWhiteSpace(id))
             throw new UnauthorizedAccessException("UserId claim not found");
 
         return int.Parse(id);

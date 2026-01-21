@@ -22,9 +22,19 @@ public class TokenService : ITokenService
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            // 🔥 ГЛАВНОЕ
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+
+            // полезные стандартные claims
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.Name),
+
+            // роли (Authorize(Roles = "...") будет работать стабильно)
             new Claim(ClaimTypes.Role, user.Role.ToString()),
+
+            // можно оставить sub для совместимости
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

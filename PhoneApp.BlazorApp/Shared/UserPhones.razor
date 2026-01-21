@@ -1,0 +1,177 @@
+@using MudBlazor
+@using PhoneApp.BlazorApp.Models
+@using PhoneApp.BlazorApp.Services
+@inject PhonesService PhonesService
+
+<MudPaper Elevation="1" Class="pa-4">
+
+    <MudText Typo="Typo.h6" GutterBottom="true">
+        Phones
+    </MudText>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-3">
+            @error
+        </MudAlert>
+    }
+
+    @if (phones == null)
+    {
+        <MudProgressLinear Indeterminate="true" />
+    }
+    else if (!phones.Any())
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            У вас пока нет номеров телефонов
+        </MudText>
+    }
+    else
+    {
+        <MudList T="PhoneDto" Dense="true">
+            @foreach (var phone in phones)
+            {
+                <MudListItem T="PhoneDto">
+                    @if (editingPhoneId == phone.Id)
+                    {
+                        <MudTextField @bind-Value="editNumber"
+                                      Label="Phone number"
+                                      Dense="true"
+                                      Class="mr-2" />
+
+                        <MudButton Color="Color.Primary"
+                                   Size="Size.Small"
+                                   OnClick="() => Save(phone.Id)">
+                            Save
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Text"
+                                   Size="Size.Small"
+                                   OnClick="Cancel">
+                            Cancel
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudText>@phone.PhoneNumber</MudText>
+
+                        <MudSpacer />
+
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       OnClick="() => Edit(phone)" />
+
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       OnClick="() => Delete(phone.Id)" />
+                    }
+                </MudListItem>
+            }
+        </MudList>
+    }
+
+    <MudDivider Class="my-4" />
+
+    <MudTextField @bind-Value="newPhoneNumber"
+                  Label="New phone"
+                  Placeholder="+996..."
+                  Dense="true"
+                  Class="mb-2" />
+
+    <MudButton Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="Add">
+        Add phone
+    </MudButton>
+
+</MudPaper>
+
+@code {
+    private List<PhoneDto>? phones;
+    private string newPhoneNumber = "";
+    private string editNumber = "";
+    private int? editingPhoneId;
+    private string error = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        phones = await PhonesService.GetMyPhonesAsync();
+    }
+
+    private async Task Add()
+    {
+        if (string.IsNullOrWhiteSpace(newPhoneNumber))
+        {
+            error = "Номер телефона обязателен";
+            return;
+        }
+
+        try
+        {
+            error = "";
+            await PhonesService.CreateMyPhoneAsync(
+                new CreatePhoneRequest { PhoneNumber = newPhoneNumber });
+
+            newPhoneNumber = "";
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private void Edit(PhoneDto phone)
+    {
+        editingPhoneId = phone.Id;
+        editNumber = phone.PhoneNumber;
+    }
+
+    private async Task Save(int phoneId)
+    {
+        if (string.IsNullOrWhiteSpace(editNumber))
+        {
+            error = "Номер телефона обязателен";
+            return;
+        }
+
+        try
+        {
+            error = "";
+            await PhonesService.UpdateAsync(
+                phoneId,
+                new UpdatePhoneRequest { PhoneNumber = editNumber });
+
+            editingPhoneId = null;
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private void Cancel()
+    {
+        editingPhoneId = null;
+    }
+
+    private async Task Delete(int phoneId)
+    {
+        try
+        {
+            error = "";
+            await PhonesService.DeleteAsync(phoneId);
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}
